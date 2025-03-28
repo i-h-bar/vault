@@ -1,22 +1,19 @@
-use std::char::from_u32;
-use std::fmt::{Display, Formatter};
-use pyo3::exceptions;
-use pyo3::exceptions::{PyIndexError, PyTypeError, PyValueError};
+use pyo3::exceptions::{PyIndexError, PyValueError};
 use rand::Rng;
 use rayon::prelude::*;
-use zerocopy::{FromBytes, Immutable, IntoBytes};
+use std::char::from_u32;
+use std::fmt::{Display, Formatter};
+use zerocopy::{FromBytes, Immutable, IntoBytes, KnownLayout};
 
 use crate::keys::public::Public;
-use crate::keys::{
-    modulus,
-    DecryptError::{self, ByteParseError, SliceAccessError, U32ParseError},
-    MAX_CHR,
-};
+use crate::keys::{modulus, MAX_CHR};
 use pyo3::prelude::*;
+use pyo3::types::PyType;
 
 #[pyclass]
-#[derive(IntoBytes, FromBytes, Immutable)]
-pub struct Secret16 {
+#[derive(IntoBytes, FromBytes, Immutable, KnownLayout)]
+#[repr(C)]
+pub struct Secret {
     key: [i32; 16],
     modulo: i32,
     add: i32,
@@ -24,7 +21,7 @@ pub struct Secret16 {
 }
 
 #[pymethods]
-impl Secret16 {
+impl Secret {
     #[new]
     pub fn new() -> Self {
         let mut rng = rand::rng();
@@ -35,12 +32,21 @@ impl Secret16 {
             key[i] = rng.random_range(-4096..4096);
         }
 
-        Secret16 {
+        Self {
             key,
             modulo,
             add,
             dim: 16,
         }
+    }
+
+    #[classmethod]
+    pub fn from_bytes(_: &Bound<'_, PyType>, bytes_str: Vec<u8>) -> PyResult<Self> {
+        Self::read_from_bytes(&bytes_str).map_err(|_| PyValueError::new_err("Invalid Bytes"))
+    }
+
+    pub fn to_bytes(&self) -> Vec<u8> {
+        self.as_bytes().to_vec()
     }
 
     pub fn generate_public_key(&self) -> Public {
@@ -90,17 +96,21 @@ impl Secret16 {
                     .map(|(num, chunklet)| num * chunklet)
                     .sum();
 
-                let last = message_chunk.last().ok_or_else(|| PyIndexError::new_err("Could not get last chunk of message"))?;
+                let last = message_chunk
+                    .last()
+                    .ok_or_else(|| PyIndexError::new_err("Could not get last chunk of message"))?;
                 Ok(
                     from_u32((modulus(last - chr_answer, self.modulo) as f32 / add).round() as u32)
-                        .ok_or_else(|| PyValueError::new_err("Could not make a character from u32"))?,
+                        .ok_or_else(|| {
+                            PyValueError::new_err("Could not make a character from u32")
+                        })?,
                 )
             })
             .collect::<PyResult<String>>()?)
     }
 }
 
-impl Display for Secret16 {
+impl Display for Secret {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         let output = format!("Secret {{ {:?} }}", self.key)
             .replace("[", "")
@@ -116,7 +126,7 @@ mod tests {
 
     #[test]
     fn test_decryption() {
-        let secret = Secret16::new();
+        let secret = Secret::new();
         let public = secret.generate_public_key();
 
         let message = "Hello World".to_string();
@@ -129,7 +139,7 @@ mod tests {
 
     #[test]
     fn test_decryption_utf8() {
-        let secret = Secret16::new();
+        let secret = Secret::new();
         let public = secret.generate_public_key();
 
         let message = "こんにちは世界".to_string();
@@ -142,7 +152,7 @@ mod tests {
 
     #[test]
     fn secret_creation() {
-        let secret = Secret16::new();
+        let secret = Secret::new();
         assert_eq!(secret.key.len(), 16);
 
         let mod_range = 11120640..111206400;
@@ -156,7 +166,7 @@ mod tests {
 
     #[test]
     fn decrypt_empty_message() {
-        let secret = Secret16::new();
+        let secret = Secret::new();
         let encrypted: [u8; 0] = [];
         let decrypted = secret.decrypt(&encrypted).unwrap();
         assert_eq!(decrypted, String::new());

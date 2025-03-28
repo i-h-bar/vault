@@ -1,4 +1,6 @@
-use pyo3::pyclass;
+use pyo3::exceptions::PyValueError;
+use pyo3::types::PyType;
+use pyo3::{pyclass, pymethods, Bound, PyResult};
 use rand::Rng;
 use rayon::prelude::*;
 use zerocopy::{FromBytes, Immutable, IntoBytes};
@@ -14,7 +16,9 @@ pub struct Public {
     dim: i32,
 }
 
+#[pymethods]
 impl Public {
+    #[new]
     pub fn new(modulo: i32, key: [i32; 2890], add: i32, dim: i32) -> Self {
         Self {
             modulo,
@@ -22,6 +26,15 @@ impl Public {
             add,
             dim,
         }
+    }
+
+    #[classmethod]
+    pub fn from_bytes(_: &Bound<'_, PyType>, bytes_str: Vec<u8>) -> PyResult<Self> {
+        Self::read_from_bytes(&bytes_str).map_err(|_| PyValueError::new_err("Invalid Bytes"))
+    }
+
+    pub fn to_bytes(&self) -> Vec<u8> {
+        self.as_bytes().to_vec()
     }
 
     pub fn encrypt(&self, message: &str) -> Vec<u8> {
