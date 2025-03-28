@@ -4,9 +4,8 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.12"
 dependencies = [
+    "asyncpg (>=0.30.0,<1.0)",
     "fastapi>=0.115.11",
-    "numba>=0.61",
-    "numpy>=2.1.3",
     "pydantic>=2.10.6",
     "uvicorn>=0.34.0",
 ]
@@ -16,9 +15,6 @@ dev = [
     "maturin>=1.8.3",
     "ruff>=0.10.0",
 ]
-
-[tool.uv]
-cache-keys = [{file = "pyproject.toml"}, {file = "rust/Cargo.toml"}, {file = "**/*.rs"}]
 
 [build-system]
 requires = ["maturin>=1.5,<2.0"]
