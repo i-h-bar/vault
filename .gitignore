@@ -1,0 +1,28 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Pycharm
+.idea
+
+# Environment Data
+.env
+
+# Bulk data
+default-cards*.json
+oracle-cards*.json
+unique-artwork*.json
+
+# Random Files
+todo.txt
+images/*
+illustrations/*
+
+poc.py

@@ -1,0 +1,14 @@
+[package]
+name = "lwe"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "lwe"
+crate-type = ["cdylib"]
+
+[dependencies]
+rand = "0.9.0"
+rayon = "1.10.0"
+zerocopy = { version="0.8.14", features = ["std", "simd", "derive"] }
+pyo3 = { git = "https://github.com/pyo3/pyo3", features = ["extension-module"] }
