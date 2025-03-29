@@ -1,5 +1,3 @@
-use std::clone;
-
 pub mod public;
 pub mod secret;
 

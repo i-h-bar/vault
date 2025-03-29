@@ -23,8 +23,8 @@ repos:
 - repo: local
   hooks:
     - id: Cargo
-      name: Cargo Check
-      entry: cargo check
+      name: Cargo Clippy
+      entry: cargo clippy -- -D warnings
       always_run: true
       language: system
       pass_filenames: false

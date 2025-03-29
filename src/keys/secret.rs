@@ -56,7 +56,7 @@ impl Secret {
         let add = self.add;
         let mut key: [i32; 2890] = [0; 2890];
         let max_fuzz = add / 10;
-        let neg_fuzz = -1 * max_fuzz;
+        let neg_fuzz = -max_fuzz;
 
         key.chunks_mut((self.dim + 1) as usize).for_each(|chunk| {
             let answer: i32 = self
