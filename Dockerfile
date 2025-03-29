@@ -1,13 +1,19 @@
 FROM python:3.13-slim
 
-RUN apt update && apt install -y make curl libpq
+RUN apt-get update && apt-get install -y make curl build-essential
 
-ADD https://astral.sh/uv/install.sh /uv-installer.sh
-RUN sh /uv-installer.sh && rm /uv-installer.sh
-
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 RUN curl https://sh.rustup.rs -sSf | bash -s -- -y
 
-RUN make setup
+ENV PATH=/home/user/.local/bin:$PATH
+ENV PATH="/root/.cargo/bin:${PATH}"
+
+COPY pyproject.toml uv.lock Cargo.toml Cargo.lock  ./
+COPY src src
+COPY python python
+
+RUN uv sync
+RUN uv run maturin develop --uv --release
 
 COPY python .
 

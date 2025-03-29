@@ -3,5 +3,5 @@ setup_local:
 	@maturin develop --uv
 
 setup:
-	@uv sync
+	@uv sync --group docker
 	@maturin develop --uv --release
