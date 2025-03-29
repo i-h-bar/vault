@@ -3,8 +3,9 @@ setup_local:
 	@maturin develop --uv
 
 setup:
-	@uv sync --group docker
+	@uv sync
 	@maturin develop --uv --release
+	@pre-commit install
 
 start_docker:
 	@sudo systemctl start docker
