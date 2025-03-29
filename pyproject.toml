@@ -28,7 +28,11 @@ package = false
 include = [
     "app",
 ]
-venvpath = ".venv"
+
+[tool.ruff]
+line-length = 120
+lint.select = ["E", "F", "I", "A", "B", "ANN"]
+target-version = "py313"
 
 [build-system]
 requires = ["maturin>=1.5,<2.0"]

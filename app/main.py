@@ -1,7 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
 from lwe import Secret
-
 from models.encrypt.inbound import EncryptIn
 from models.encrypt.outbound import EncryptOut
 
@@ -9,8 +8,8 @@ app = FastAPI()
 
 
 @app.get("/")
-async def root():
-    return {"message": "Hello World"}
+async def root() -> dict[str, str]:
+    return {"message": "Hello World!"}
 
 
 @app.post("/encrypt", response_model=EncryptOut)
