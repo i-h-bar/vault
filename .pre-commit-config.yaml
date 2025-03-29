@@ -24,7 +24,7 @@ repos:
   hooks:
     - id: cargo-clippy
       name: Cargo Clippy
-      entry: cargo clippy --  -W clippy::suspicious -W clippy::perf -W clippy::style -W clippy::complexity -W clippy::correctness -D warnings
+      entry: cargo clippy -- -W clippy::suspicious -W clippy::perf -W clippy::style -W clippy::complexity -W clippy::correctness -D warnings
       always_run: true
       language: system
       pass_filenames: false
