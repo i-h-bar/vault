@@ -1,3 +1,4 @@
+use base64::prelude::*;
 use pyo3::exceptions::PyValueError;
 use pyo3::types::PyType;
 use pyo3::{pyclass, pymethods, Bound, PyResult};
@@ -37,7 +38,13 @@ impl Public {
         self.as_bytes().to_vec()
     }
 
-    pub fn encrypt(&self, message: &str) -> Vec<u8> {
+    pub fn encrypt(&self, message: &str) -> String {
+        BASE64_STANDARD.encode(self._encrypt(message))
+    }
+}
+
+impl Public {
+    fn _encrypt(&self, message: &str) -> Vec<u8> {
         let dim = (self.dim + 1) as usize;
         let pub_key_size = (self.dim * 10) as usize;
         let message_chars: Vec<char> = message.chars().collect();

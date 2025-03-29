@@ -1,3 +1,4 @@
+use base64::prelude::BASE64_STANDARD;
 use pyo3::exceptions::{PyIndexError, PyValueError};
 use rand::Rng;
 use rayon::prelude::*;
@@ -7,6 +8,7 @@ use zerocopy::{FromBytes, Immutable, IntoBytes, KnownLayout};
 
 use crate::keys::public::Public;
 use crate::keys::{modulus, MAX_CHR};
+use base64::prelude::*;
 use pyo3::prelude::*;
 use pyo3::types::PyType;
 
@@ -77,7 +79,17 @@ impl Secret {
         Public::new(self.modulo, key, add, self.dim)
     }
 
-    pub fn decrypt(&self, message: &[u8]) -> PyResult<String> {
+    pub fn decrypt(&self, message: &str) -> PyResult<String> {
+        self._decrypt(
+            &BASE64_STANDARD
+                .decode(message)
+                .map_err(|_| PyValueError::new_err("Could not parse b64"))?,
+        )
+    }
+}
+
+impl Secret {
+    fn _decrypt(&self, message: &[u8]) -> PyResult<String> {
         if message.is_empty() {
             return Ok(String::new());
         }
@@ -167,7 +179,7 @@ mod tests {
     #[test]
     fn decrypt_empty_message() {
         let secret = Secret::new();
-        let encrypted: [u8; 0] = [];
+        let encrypted = String::new();
         let decrypted = secret.decrypt(&encrypted).unwrap();
         assert_eq!(decrypted, String::new());
     }
