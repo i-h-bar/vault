@@ -7,6 +7,7 @@ from models.encrypt.outbound import EncryptOut
 
 app = FastAPI()
 
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
@@ -17,7 +18,6 @@ async def encrypt(message: EncryptIn) -> EncryptOut:
     secret = Secret()
     public = secret.generate_public_key()
     return EncryptOut(encrypted=public.encrypt(message.message))
-
 
 
 if __name__ == "__main__":

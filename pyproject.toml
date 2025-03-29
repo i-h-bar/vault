@@ -28,6 +28,7 @@ package = false
 include = [
     "app",
 ]
+venvpath = ".venv"
 
 [build-system]
 requires = ["maturin>=1.5,<2.0"]

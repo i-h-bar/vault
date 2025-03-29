@@ -15,7 +15,11 @@ repos:
     - id: ruff
     - id: ruff-format
 
-- repo: https://github.com/RobertCraigie/pyright-python
-  rev: v1.1.316
+- repo: local
   hooks:
-    - id: pyright
+    - id: Pyright
+      name: Pyright
+      entry: pyright
+      always_run: true
+      language: system
+      pass_filenames: false
