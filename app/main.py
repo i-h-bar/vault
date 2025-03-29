@@ -12,7 +12,7 @@ async def root() -> dict[str, str]:
     return {"message": "Hello World!"}
 
 
-@app.post("/encrypt", response_model=EncryptOut)
+@app.post("/encrypt")
 async def encrypt(message: EncryptIn) -> EncryptOut:
     secret = Secret()
     public = secret.generate_public_key()

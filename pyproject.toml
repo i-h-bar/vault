@@ -31,7 +31,31 @@ include = [
 
 [tool.ruff]
 line-length = 120
-lint.select = ["E", "F", "I", "A", "B", "ANN"]
+lint.select = [
+    "E",
+    "F",
+    "I",
+    "A",
+    "B",
+    "ANN",
+    "FAST",
+    "ASYNC",
+    "ARG",
+    "S",
+    "BLE",
+    "COM",
+    "C4",
+    "T20",
+    "Q",
+    "RET",
+    "SIM",
+    "TC",
+    "PTH",
+    "N",
+    "PERF",
+    "W",
+    "RUF"
+]
 target-version = "py313"
 
 [build-system]
