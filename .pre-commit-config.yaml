@@ -15,6 +15,7 @@ repos:
     - id: ruff
       args:
         - --fix
+      stages: ["pre-push"]
     - id: ruff-format
 
 - repo: local
@@ -25,3 +26,4 @@ repos:
       always_run: true
       language: system
       pass_filenames: false
+      stages: ["pre-push"]
