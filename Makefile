@@ -1,12 +1,9 @@
-setup_local:
-	@uv sync
-	@maturin develop --uv
+
+
+setup_local: binary
 	@pre-commit install
 	@pre-commit install --hook-type pre-commit --hook-type pre-push
 
-setup:
-	@uv sync
-	@maturin develop --uv --release
 
 start_docker:
 	@sudo systemctl start docker
