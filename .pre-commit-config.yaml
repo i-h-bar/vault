@@ -28,16 +28,13 @@ repos:
       always_run: true
       language: system
       pass_filenames: false
-      stages: ["pre-push"]
+      stages: [ "pre-push" ]
     - id: cargo-fmt
       name: Cargo Format
       entry: cargo fmt
       always_run: true
       language: system
       pass_filenames: false
-
-- repo: local
-  hooks:
     - id: Pyright
       name: Pyright
       entry: pyright
