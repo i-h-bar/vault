@@ -22,13 +22,19 @@ repos:
 
 - repo: local
   hooks:
-    - id: Cargo
+    - id: cargo-clippy
       name: Cargo Clippy
       entry: cargo clippy -- -D warnings
       always_run: true
       language: system
       pass_filenames: false
       stages: ["pre-push"]
+    - id: cargo-fmt
+      name: Cargo Format
+      entry: cargo fmt
+      always_run: true
+      language: system
+      pass_filenames: false
 
 - repo: local
   hooks:

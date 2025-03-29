@@ -26,20 +26,7 @@ pub struct Secret {
 impl Secret {
     #[new]
     pub fn new() -> Self {
-        let mut rng = rand::rng();
-        let mut key = [0; 16];
-        let modulo = rng.random_range(11120640..111206400);
-        let add: i32 = modulo / MAX_CHR;
-        for i in 0..16 {
-            key[i] = rng.random_range(-4096..4096);
-        }
-
-        Self {
-            key,
-            modulo,
-            add,
-            dim: 16,
-        }
+        Self::default()
     }
 
     #[classmethod]
@@ -88,6 +75,25 @@ impl Secret {
     }
 }
 
+impl Default for Secret {
+    fn default() -> Self {
+        let mut rng = rand::rng();
+        let mut key = [0; 16];
+        let modulo = rng.random_range(11120640..111206400);
+        let add: i32 = modulo / MAX_CHR;
+        for num in key.iter_mut() {
+            *num = rng.random_range(-4096..4096);
+        }
+
+        Self {
+            key,
+            modulo,
+            add,
+            dim: 16,
+        }
+    }
+}
+
 impl Secret {
     fn _decrypt(&self, message: &[u8]) -> PyResult<String> {
         if message.is_empty() {
@@ -98,7 +104,7 @@ impl Secret {
             .map_err(|_| PyValueError::new_err("Could not parse bytes"))?;
         let add = self.add as f32;
 
-        Ok(message
+        message
             .par_chunks(self.key.len() + 1)
             .map(|message_chunk| {
                 let chr_answer: i32 = self
@@ -111,14 +117,11 @@ impl Secret {
                 let last = message_chunk
                     .last()
                     .ok_or_else(|| PyIndexError::new_err("Could not get last chunk of message"))?;
-                Ok(
-                    from_u32((modulus(last - chr_answer, self.modulo) as f32 / add).round() as u32)
-                        .ok_or_else(|| {
-                            PyValueError::new_err("Could not make a character from u32")
-                        })?,
-                )
+
+                from_u32((modulus(last - chr_answer, self.modulo) as f32 / add).round() as u32)
+                    .ok_or_else(|| PyValueError::new_err("Could not make a character from u32"))
             })
-            .collect::<PyResult<String>>()?)
+            .collect::<PyResult<String>>()
     }
 }
 
