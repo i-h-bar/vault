@@ -10,11 +10,12 @@ ENV PATH="/root/.cargo/bin:${PATH}"
 
 COPY pyproject.toml uv.lock Cargo.toml Cargo.lock  ./
 COPY src src
-COPY python python
+COPY app app
 
-RUN uv sync
+RUN uv pip install maturin
 RUN uv run maturin develop --uv --release
+RUN uv pip uninstall maturin
 
-COPY python .
+COPY app .
 
 ENTRYPOINT ["uv", "run", "main.py"]
