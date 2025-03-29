@@ -12,10 +12,8 @@ COPY pyproject.toml uv.lock Cargo.toml Cargo.lock  ./
 COPY src src
 COPY app app
 
-RUN uv pip install maturin
-RUN uv run maturin develop --uv --release
-RUN uv pip uninstall maturin
+RUN make binary_docker
 
 COPY app .
 
-ENTRYPOINT ["uv", "run", "main.py"]
+ENTRYPOINT ["uv", "run", "main.py", "--no-default-groups"]
