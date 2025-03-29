@@ -16,7 +16,9 @@ repos:
       args:
         - --fix
       stages: ["pre-push"]
+      always_run: true
     - id: ruff-format
+      always_run: true
 
 - repo: local
   hooks:
