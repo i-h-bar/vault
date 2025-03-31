@@ -9,13 +9,13 @@ def keys() -> tuple[Secret, Public]:
     return secret, public
 
 
-def test_keys():
+def test_keys() -> None:
     secret = Secret()
     public = secret.generate_public_key()
     assert isinstance(public, Public)
 
 
-def test_encrypt(keys: tuple[Secret, Public]):
+def test_encrypt(keys: tuple[Secret, Public]) -> None:
     secret, public = keys
     message = "Hello, world!"
 
@@ -25,7 +25,7 @@ def test_encrypt(keys: tuple[Secret, Public]):
     assert message not in encrypted
 
 
-def test_decrypt(keys: tuple[Secret, Public]):
+def test_decrypt(keys: tuple[Secret, Public]) -> None:
     secret, public = keys
     message = "Hello, world!"
 
@@ -35,7 +35,7 @@ def test_decrypt(keys: tuple[Secret, Public]):
     assert decrypted == message
 
 
-def test_from_and_to_bytes(keys: tuple[Secret, Public]):
+def test_from_and_to_bytes(keys: tuple[Secret, Public]) -> None:
     secret, public = keys
 
     secret_bytes = secret.to_bytes()
