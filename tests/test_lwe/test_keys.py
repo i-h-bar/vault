@@ -35,6 +35,16 @@ def test_decrypt(keys: tuple[Secret, Public]) -> None:
     assert decrypted == message
 
 
+def test_decrypt_ut8(keys: tuple[Secret, Public]) -> None:
+    secret, public = keys
+    message = "你好世界！"
+
+    encrypted = public.encrypt(message)
+    decrypted = secret.decrypt(encrypted)
+
+    assert decrypted == message
+
+
 def test_from_and_to_bytes(keys: tuple[Secret, Public]) -> None:
     secret, public = keys
 
