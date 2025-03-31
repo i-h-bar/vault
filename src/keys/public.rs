@@ -34,8 +34,22 @@ impl Public {
         Self::read_from_bytes(&bytes_str).map_err(|_| PyValueError::new_err("Invalid Bytes"))
     }
 
+    #[classmethod]
+    pub fn from_b64(py: &Bound<'_, PyType>, base64_str: String) -> PyResult<Self> {
+        Self::from_bytes(
+            py,
+            BASE64_STANDARD
+                .decode(base64_str)
+                .map_err(|_| PyValueError::new_err("Could not parse b64"))?,
+        )
+    }
+
     pub fn to_bytes(&self) -> Vec<u8> {
         self.as_bytes().to_vec()
+    }
+
+    pub fn to_b64(&self) -> String {
+        BASE64_STANDARD.encode(self.as_bytes())
     }
 
     pub fn encrypt(&self, message: &str) -> String {

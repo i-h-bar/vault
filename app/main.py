@@ -1,9 +1,15 @@
-import uvicorn
-from fastapi import FastAPI
-from lwe import Secret
-from models.encrypt.inbound import EncryptIn
-from models.encrypt.outbound import EncryptOut
+import json
 
+import asyncpg
+import uvicorn
+from fastapi import FastAPI, Request
+from lwe import Public, Secret
+from models.output import EncryptedOutput
+from models.session.inbound import SessionIn
+from redis.asyncio import Redis
+
+pool = asyncpg.create_pool()
+redis = Redis()
 app = FastAPI()
 
 
@@ -12,11 +18,24 @@ async def root() -> dict[str, str]:
     return {"message": "Hello World!"}
 
 
-@app.post("/encrypt")
-async def encrypt(message: EncryptIn) -> EncryptOut:
-    secret = Secret()
-    public = secret.generate_public_key()
-    return EncryptOut(encrypted=public.encrypt(message.message))
+@app.post("/session")
+async def session(session_in: SessionIn, request: Request) -> EncryptedOutput:
+    client_public_key_b64 = session_in.pub_key
+    client_public_key = Public.from_b64(client_public_key_b64)
+    client_ip = request.client.host
+
+    app_secret = Secret()
+    app_public_key = app_secret.generate_public_key().to_b64()
+    app_public_key_encrypted = client_public_key.encrypt(app_public_key)
+
+    redis_keys = {
+        "secret": app_secret.to_b64(),
+        "public": client_public_key_b64,
+    }
+
+    await redis.set(client_ip, json.dumps(redis_keys), ex=1800)
+
+    return EncryptedOutput(content=app_public_key_encrypted)
 
 
 if __name__ == "__main__":
