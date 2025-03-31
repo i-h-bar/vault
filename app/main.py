@@ -3,6 +3,7 @@ import json
 import asyncpg
 import uvicorn
 from fastapi import FastAPI, Request
+from fastapi.exceptions import HTTPException
 from lwe import Public, Secret
 from models.output import EncryptedOutput
 from models.session.inbound import SessionIn
@@ -19,10 +20,14 @@ async def root() -> dict[str, str]:
 
 
 @app.post("/session")
-async def session(session_in: SessionIn, request: Request) -> EncryptedOutput:
+async def session(session_in: SessionIn, request: Request) -> EncryptedOutput | HTTPException:
     client_public_key_b64 = session_in.pub_key
     client_public_key = Public.from_b64(client_public_key_b64)
-    client_ip = request.client.host
+
+    if client := request.client:
+        client_ip = client.host
+    else:
+        return HTTPException(status_code=400, detail="Client not found")
 
     app_secret = Secret()
     app_public_key = app_secret.generate_public_key().to_b64()
