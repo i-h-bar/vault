@@ -20,6 +20,8 @@ dev = [
     "ruff>=0.10.0",
     "pre-commit (>=4.2,<5.0)",
     "pyright>=1.1.398",
+    "coverage (>=7.8.0,<8.0.0)",
+    "pytest (>=8.3.5,<9.0.0)",
 ]
 
 [tool.uv]
@@ -29,6 +31,11 @@ package = false
 include = [
     "app",
 ]
+
+[tool.coverage.run]
+omit = ["*/site-packages/*"]
+command_line = "-m pytest tests --junit-xml=junit.xml"
+
 
 [tool.ruff]
 line-length = 120

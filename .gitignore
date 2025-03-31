@@ -177,3 +177,6 @@ poc.py
 
 # Rust bits
 /target
+
+# Coverage
+junit.xml
