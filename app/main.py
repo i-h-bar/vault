@@ -21,13 +21,13 @@ async def root() -> dict[str, str]:
 
 @app.post("/session")
 async def session(session_in: SessionIn, request: Request) -> EncryptedOutput | HTTPException:
-    client_public_key_b64 = session_in.pub_key
-    client_public_key = Public.from_b64(client_public_key_b64)
-
     if client := request.client:
         client_ip = client.host
     else:
         return HTTPException(status_code=400, detail="Client not found")
+
+    client_public_key_b64 = session_in.pub_key
+    client_public_key = Public.from_b64(client_public_key_b64)
 
     app_secret = Secret()
     app_public_key = app_secret.generate_public_key().to_b64()
