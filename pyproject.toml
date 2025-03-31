@@ -27,13 +27,14 @@ dev = [
 [tool.uv]
 package = false
 
+[tool.pytest.ini_options]
+pythonpath = ["app"]
+
 [tool.pyright]
-include = [
-    "app",
-]
+include = ["app"]
 
 [tool.coverage.run]
-omit = ["*/site-packages/*"]
+omit = ["*/site-packages/*", "tests/*"]
 command_line = "-m pytest tests --junit-xml=junit.xml"
 
 

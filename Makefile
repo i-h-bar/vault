@@ -16,3 +16,7 @@ binary_docker:
 	@uv sync --only-group docker
 	@uv run maturin develop --uv --release
 	@uv sync --no-dev
+
+test: binary
+	@uv run coverage run
+	@uv run coverage report
