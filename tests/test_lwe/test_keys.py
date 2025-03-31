@@ -66,3 +66,26 @@ def test_from_and_to_bytes(keys: tuple[Secret, Public]) -> None:
         assert message not in encrypted
         decrypted = s_key.decrypt(encrypted)
         assert decrypted == message
+
+
+def test_from_and_to_b64(keys: tuple[Secret, Public]) -> None:
+    secret, public = keys
+
+    secret_bytes = secret.to_b64()
+    assert isinstance(secret_bytes, str)
+    secret_2 = Secret.from_b64(secret_bytes)
+
+    public_bytes = public.to_b64()
+    assert isinstance(public_bytes, str)
+    public_2 = Public.from_b64(public_bytes)
+
+    matrix = ((secret_2, public_2), (secret_2, public), (secret, public_2))
+
+    message = "Hello, world!"
+    for s_key, p_key in matrix:
+        encrypted = p_key.encrypt(message)
+        assert isinstance(encrypted, str)
+        assert encrypted != message
+        assert message not in encrypted
+        decrypted = s_key.decrypt(encrypted)
+        assert decrypted == message
