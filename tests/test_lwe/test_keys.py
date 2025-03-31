@@ -37,7 +37,7 @@ def test_decrypt(keys: tuple[Secret, Public]) -> None:
 
 def test_decrypt_ut8(keys: tuple[Secret, Public]) -> None:
     secret, public = keys
-    message = "你好世界！"
+    message = "你好世界！"  # ruff: noqa: RUF001
 
     encrypted = public.encrypt(message)
     decrypted = secret.decrypt(encrypted)
