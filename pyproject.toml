@@ -39,6 +39,10 @@ include = ["app"]
 [tool.coverage.run]
 omit = ["*/site-packages/*", "tests/*"]
 command_line = "-m pytest tests"
+source = ["./app"]
+
+[tool.coverage.report]
+include = ["app/*"]
 
 
 [tool.ruff]
