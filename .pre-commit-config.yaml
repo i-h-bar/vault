@@ -42,3 +42,9 @@ repos:
       language: system
       pass_filenames: false
       stages: ["pre-push"]
+    - id: UV Lock
+      name: UV Lock
+      entry: uv lock
+      always_run: true
+      language: system
+      pass_filenames: false
