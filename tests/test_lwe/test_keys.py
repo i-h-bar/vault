@@ -1,6 +1,5 @@
+from lwe import Public, Secret
 from pytest import fixture
-
-from lwe import Secret, Public
 
 
 @fixture
