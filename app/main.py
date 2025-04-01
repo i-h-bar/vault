@@ -41,7 +41,8 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
 
 app = FastAPI(lifespan=lifespan)
 
-SALT = os.getenv("SALT").encode()
+if salt := os.getenv("SALT"):
+    SALT = salt.encode()
 
 
 @app.get("/")
@@ -61,6 +62,8 @@ async def new(user: NewIn) -> NewOut:
 
 @app.post("/authenticate")
 async def authenticate(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], public_key: str) -> Token:
+    global redis
+
     return await authenticate_user(form_data, public_key, pool, redis)
 
 
