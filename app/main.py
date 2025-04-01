@@ -62,8 +62,6 @@ async def new(user: NewIn) -> NewOut:
 
 @app.post("/authenticate")
 async def authenticate(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], public_key: str) -> Token:
-    global redis
-
     return await authenticate_user(form_data, public_key, pool, redis)
 
 

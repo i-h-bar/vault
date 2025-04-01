@@ -10,7 +10,7 @@ from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from lwe import Secret
 from models.authenticate.token import Token
-from redis import Redis
+from redis.asyncio import Redis
 
 load_dotenv()
 JWT_SECRET = os.getenv("JWT_SECRET")
