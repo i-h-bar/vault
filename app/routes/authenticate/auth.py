@@ -1,4 +1,4 @@
-import json
+import asyncio
 from datetime import datetime, timedelta
 
 import bcrypt
@@ -29,13 +29,12 @@ async def authenticate_user(form_data: OAuth2PasswordRequestForm, public_key: st
     app_public_key = app_secret.generate_public_key().to_b64()
 
     expires = (datetime.now(tz=pytz.UTC) + timedelta(seconds=SESSION_DURATION)).isoformat()
-    redis_data = {
-        "secret": app_secret.to_b64(),
-        "public": public_key,
-        "expires": expires,
-    }
 
-    await redis.set(user_id, json.dumps(redis_data), ex=SESSION_DURATION)
+    await asyncio.gather(
+        redis.set(f"{user_id}-secret", app_secret.to_b64(), ex=SESSION_DURATION),
+        redis.set(f"{user_id}-public", public_key, ex=SESSION_DURATION),
+        redis.set(f"{user_id}-expiry", expires, ex=SESSION_DURATION),
+    )
 
     raw_token = {
         "id": user_id,
