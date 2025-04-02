@@ -51,7 +51,7 @@ async def new(user: NewIn) -> NewOut:
     try:
         await pool.execute(ADD_USER, str(uuid.uuid4()), user.username, bcrypt.hashpw(user.password.encode(), SALT))
     except asyncpg.PostgresError:
-        raise HTTPException(status_code=500, detail="Internal Server Error")  # noqa: B904
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
     return NewOut(username=user.username)
 

@@ -51,7 +51,13 @@ include = ["app/*"]
 [tool.ruff]
 line-length = 120
 target-version = "py313"
-lint.select = [
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"]
+
+[tool.ruff.lint]
+ignore = ["B904"]
+select = [
     "E",
     "F",
     "I",
@@ -76,9 +82,6 @@ lint.select = [
     "W",
     "RUF"
 ]
-
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101"]
 
 [build-system]
 requires = ["maturin>=1.5,<2.0"]
