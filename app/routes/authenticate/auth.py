@@ -1,19 +1,18 @@
 import json
-import os
+from datetime import datetime, timedelta
 
 import bcrypt
 import jwt
+import pytz
 from asyncpg import Pool
 from db.users.queries import GET_USER
-from dotenv import load_dotenv
 from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from lwe import Secret
 from models.authenticate.output import AuthOut, Token
 from redis.asyncio import Redis
 
-load_dotenv()
-JWT_SECRET = os.getenv("JWT_SECRET")
+from routes.authenticate.constants import JWT_SECRET, SESSION_DURATION
 
 
 async def authenticate_user(form_data: OAuth2PasswordRequestForm, public_key: str, pool: Pool, redis: Redis) -> AuthOut:
@@ -29,15 +28,19 @@ async def authenticate_user(form_data: OAuth2PasswordRequestForm, public_key: st
     app_secret = Secret()
     app_public_key = app_secret.generate_public_key().to_b64()
 
-    redis_keys = {
+    expires = (datetime.now(tz=pytz.UTC) + timedelta(seconds=SESSION_DURATION)).isoformat()
+    redis_data = {
         "secret": app_secret.to_b64(),
         "public": public_key,
+        "expires": expires,
     }
 
-    await redis.set(user_id, json.dumps(redis_keys), ex=1800)
+    await redis.set(user_id, json.dumps(redis_data), ex=SESSION_DURATION)
 
     raw_token = {
         "id": user_id,
+        "expires": expires,
+        "duration": SESSION_DURATION,
     }
 
     token = Token(token=jwt.encode(raw_token, JWT_SECRET))
