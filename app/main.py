@@ -15,7 +15,7 @@ from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from lwe import Public, Secret
-from models.authenticate.token import Token
+from models.authenticate.output import AuthOut
 from models.new.inbound import NewIn
 from models.new.outbound import NewOut
 from models.output import EncryptedOutput
@@ -61,7 +61,7 @@ async def new(user: NewIn) -> NewOut:
 
 
 @app.post("/authenticate")
-async def authenticate(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], public_key: str) -> Token:
+async def authenticate(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], public_key: str) -> AuthOut:
     return await authenticate_user(form_data, public_key, pool, redis)
 
 

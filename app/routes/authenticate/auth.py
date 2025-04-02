@@ -9,14 +9,14 @@ from dotenv import load_dotenv
 from fastapi import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from lwe import Secret
-from models.authenticate.token import Token
+from models.authenticate.output import AuthOut, Token
 from redis.asyncio import Redis
 
 load_dotenv()
 JWT_SECRET = os.getenv("JWT_SECRET")
 
 
-async def authenticate_user(form_data: OAuth2PasswordRequestForm, public_key: str, pool: Pool, redis: Redis) -> Token:
+async def authenticate_user(form_data: OAuth2PasswordRequestForm, public_key: str, pool: Pool, redis: Redis) -> AuthOut:
     user = await pool.fetchrow(GET_USER, form_data.username)
 
     if not user:
@@ -38,9 +38,8 @@ async def authenticate_user(form_data: OAuth2PasswordRequestForm, public_key: st
 
     raw_token = {
         "id": user_id,
-        "public_key": app_public_key,
     }
 
-    token = jwt.encode(raw_token, JWT_SECRET)
+    token = Token(token=jwt.encode(raw_token, JWT_SECRET))
 
-    return Token(token=token)
+    return AuthOut(token=token, public_key=app_public_key)
