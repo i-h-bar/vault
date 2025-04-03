@@ -15,12 +15,9 @@ from fastapi.security import OAuth2PasswordRequestForm
 from models.authenticate.output import AuthOut
 from models.new.inbound import NewIn
 from models.new.outbound import NewOut
-from redis.asyncio import Redis
 from routes.authenticate.auth import authenticate_user
 
 load_dotenv()
-
-redis = Redis()
 
 
 @asynccontextmanager
@@ -56,7 +53,7 @@ async def new(user: NewIn) -> NewOut:
 async def authenticate(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], public_key: str, request: Request
 ) -> AuthOut:
-    return await authenticate_user(form_data, public_key, redis, request)
+    return await authenticate_user(form_data, public_key, request)
 
 
 if __name__ == "__main__":

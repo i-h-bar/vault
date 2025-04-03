@@ -6,18 +6,16 @@ import jwt
 import pytz
 from db.psql.client import Psql
 from db.psql.users.queries import GET_USER
+from db.redis.client import Redis
 from fastapi import HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from lwe import Secret
 from models.authenticate.output import AuthOut, Token
-from redis.asyncio import Redis
 
 from routes.authenticate.constants import JWT_SECRET, SESSION_DURATION
 
 
-async def authenticate_user(
-    form_data: OAuth2PasswordRequestForm, public_key: str, redis: Redis, request: Request
-) -> AuthOut:
+async def authenticate_user(form_data: OAuth2PasswordRequestForm, public_key: str, request: Request) -> AuthOut:
     user = await Psql().fetch_row(GET_USER, form_data.username)
 
     if not user:
@@ -35,6 +33,7 @@ async def authenticate_user(
 
     expires = (datetime.now(tz=pytz.UTC) + timedelta(seconds=SESSION_DURATION)).isoformat()
 
+    redis = Redis()
     await asyncio.gather(
         redis.set(f"{user_id}-secret", app_secret.to_b64(), ex=SESSION_DURATION),
         redis.set(f"{user_id}-public", public_key, ex=SESSION_DURATION),
