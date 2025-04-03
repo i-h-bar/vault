@@ -8,7 +8,7 @@ import bcrypt
 import uvicorn
 from asyncpg import Pool
 from db import pool
-from db.users.queries import ADD_USER
+from db.psql.users.queries import ADD_USER
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import HTTPException

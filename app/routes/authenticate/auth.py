@@ -5,7 +5,7 @@ import bcrypt
 import jwt
 import pytz
 from asyncpg import Pool
-from db.users.queries import GET_USER
+from db.psql.users.queries import GET_USER
 from fastapi import HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from lwe import Secret

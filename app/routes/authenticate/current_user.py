@@ -3,7 +3,7 @@ from datetime import datetime
 import jwt
 import pytz
 from asyncpg import Pool
-from db.users.queries import GET_USER_FROM_ID
+from db.psql.users.queries import GET_USER_FROM_ID
 from fastapi import Depends, HTTPException, Request
 from fastapi.security import OAuth2PasswordBearer
 from jwt import InvalidTokenError
