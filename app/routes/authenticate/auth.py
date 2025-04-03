@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import bcrypt
 import jwt
 import pytz
-from asyncpg import Pool
+from db.psql.client import Psql
 from db.psql.users.queries import GET_USER
 from fastapi import HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
@@ -16,9 +16,9 @@ from routes.authenticate.constants import JWT_SECRET, SESSION_DURATION
 
 
 async def authenticate_user(
-    form_data: OAuth2PasswordRequestForm, public_key: str, pool: Pool, redis: Redis, request: Request
+    form_data: OAuth2PasswordRequestForm, public_key: str, redis: Redis, request: Request
 ) -> AuthOut:
-    user = await pool.fetchrow(GET_USER, form_data.username)
+    user = await Psql().fetch_row(GET_USER, form_data.username)
 
     if not user:
         raise HTTPException(status_code=401, detail="Invalid username or password")

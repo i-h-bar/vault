@@ -7,7 +7,7 @@ import asyncpg
 import bcrypt
 import uvicorn
 from asyncpg import Pool
-from db import pool
+from db.psql.client import Psql
 from db.psql.users.queries import ADD_USER
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Request
@@ -28,11 +28,8 @@ pool: Pool
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
-    global pool
-
-    pool = await asyncpg.create_pool(dsn=os.getenv("PSQL_URI"))
-    yield
-    await pool.close()
+    async with Psql():
+        yield
 
 
 app = FastAPI(lifespan=lifespan)
@@ -49,7 +46,7 @@ async def root() -> dict[str, str]:
 @app.post("/new")
 async def new(user: NewIn) -> NewOut:
     try:
-        await pool.execute(ADD_USER, str(uuid.uuid4()), user.username, bcrypt.hashpw(user.password.encode(), SALT))
+        await Psql().execute(ADD_USER, str(uuid.uuid4()), user.username, bcrypt.hashpw(user.password.encode(), SALT))
     except asyncpg.PostgresError:
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
@@ -60,7 +57,7 @@ async def new(user: NewIn) -> NewOut:
 async def authenticate(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()], public_key: str, request: Request
 ) -> AuthOut:
-    return await authenticate_user(form_data, public_key, pool, redis, request)
+    return await authenticate_user(form_data, public_key, redis, request)
 
 
 if __name__ == "__main__":
