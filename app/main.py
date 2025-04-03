@@ -34,11 +34,6 @@ else:
     raise ValueError("SALT not set")
 
 
-@app.get("/")
-async def root() -> dict[str, str]:
-    return {"message": "Hello World!"}
-
-
 @app.post("/new")
 async def new(user: NewIn) -> NewOut:
     try:
