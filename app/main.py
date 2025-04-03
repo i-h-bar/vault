@@ -12,10 +12,14 @@ from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
-from models.authenticate.output import AuthOut
+from models.authenticate.output import Token
 from models.new.inbound import NewIn
 from models.new.outbound import NewOut
+from models.user import User
 from routes.authenticate.auth import authenticate_user
+from routes.authenticate.current_user import get_current_user
+from routes.password.post.inbound import SetPasswordIn
+from routes.password.post.outbound import SetPasswordOut
 
 load_dotenv()
 
@@ -45,10 +49,13 @@ async def new(user: NewIn) -> NewOut:
 
 
 @app.post("/authenticate")
-async def authenticate(
-    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], public_key: str, request: Request
-) -> AuthOut:
-    return await authenticate_user(form_data, public_key, request)
+async def authenticate(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], request: Request) -> Token:
+    return await authenticate_user(form_data, request)
+
+
+@app.post("/password")
+async def set_password(_: SetPasswordIn, __: Annotated[User, Depends(get_current_user)]) -> SetPasswordOut:
+    return SetPasswordOut()
 
 
 if __name__ == "__main__":

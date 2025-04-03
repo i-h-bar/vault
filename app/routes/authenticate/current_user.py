@@ -1,5 +1,6 @@
 import asyncio
 from datetime import datetime
+from typing import Annotated
 
 import jwt
 import pytz
@@ -17,7 +18,7 @@ from routes.authenticate.constants import JWT_ALGORITHM, JWT_SECRET
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="authenticate")
 
 
-async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)) -> User:
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], request: Request) -> User:
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=JWT_ALGORITHM)
     except InvalidTokenError:
@@ -35,7 +36,7 @@ async def get_current_user(request: Request, token: str = Depends(oauth2_scheme)
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
     expiry = datetime.fromisoformat(raw_date)
-    if expiry > datetime.now(tz=pytz.utc):
+    if expiry < datetime.now(tz=pytz.utc):
         raise HTTPException(status_code=401, detail="Token has expired")
 
     ip = await redis.get(f"{user_id}-ip")

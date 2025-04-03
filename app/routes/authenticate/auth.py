@@ -10,13 +10,16 @@ from db.redis.client import Redis
 from fastapi import HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from lwe import Secret
-from models.authenticate.output import AuthOut, Token
+from models.authenticate.output import Token
 
 from routes.authenticate.constants import JWT_SECRET, SESSION_DURATION
 
 
-async def authenticate_user(form_data: OAuth2PasswordRequestForm, public_key: str, request: Request) -> AuthOut:
+async def authenticate_user(form_data: OAuth2PasswordRequestForm, request: Request) -> Token:
     user = await Psql().fetch_row(GET_USER, form_data.username)
+
+    if not form_data.client_secret:
+        raise HTTPException(status_code=401, detail="Invalid client secret")
 
     if not user:
         raise HTTPException(status_code=401, detail="Invalid username or password")
@@ -36,7 +39,7 @@ async def authenticate_user(form_data: OAuth2PasswordRequestForm, public_key: st
     redis = Redis()
     await asyncio.gather(
         redis.set(f"{user_id}-secret", app_secret.to_b64(), ex=SESSION_DURATION),
-        redis.set(f"{user_id}-public", public_key, ex=SESSION_DURATION),
+        redis.set(f"{user_id}-public", form_data.client_secret, ex=SESSION_DURATION),
         redis.set(f"{user_id}-expiry", expires, ex=SESSION_DURATION),
         redis.set(f"{user_id}-ip", client.host, ex=SESSION_DURATION),
     )
@@ -47,6 +50,4 @@ async def authenticate_user(form_data: OAuth2PasswordRequestForm, public_key: st
         "duration": SESSION_DURATION,
     }
 
-    token = Token(token=jwt.encode(raw_token, JWT_SECRET))
-
-    return AuthOut(token=token, public_key=app_public_key)
+    return Token(access_token=jwt.encode(raw_token, JWT_SECRET), public_key=app_public_key)

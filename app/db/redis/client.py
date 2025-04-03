@@ -19,4 +19,7 @@ class Redis:
         await self.redis.set(key, value, ex=ex)
 
     async def get(self: Self, key: str) -> str | None:
-        return await self.redis.get(key)
+        if value := await self.redis.get(key):
+            return value.decode()
+
+        return None
