@@ -54,4 +54,4 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], reques
     public = Public.from_b64(public_b64)
     user = await Psql().fetch_row(GET_USER_FROM_ID, user_id)
 
-    return User(id=user["id"], name=user["name"], public=public, secret=secret)
+    return User(id=str(user["id"]), name=user["name"], public=public, secret=secret)
