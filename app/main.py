@@ -6,7 +6,6 @@ from typing import Annotated, AsyncGenerator
 import asyncpg
 import bcrypt
 import uvicorn
-from asyncpg import Pool
 from db.psql.client import Psql
 from db.psql.users.queries import ADD_USER
 from dotenv import load_dotenv
@@ -22,8 +21,6 @@ from routes.authenticate.auth import authenticate_user
 load_dotenv()
 
 redis = Redis()
-
-pool: Pool
 
 
 @asynccontextmanager
