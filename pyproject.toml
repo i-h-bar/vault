@@ -56,7 +56,7 @@ target-version = "py313"
 "tests/*" = ["S101"]
 
 [tool.ruff.lint]
-ignore = ["B904"]
+ignore = ["B904", "COM812"]
 select = [
     "E",
     "F",

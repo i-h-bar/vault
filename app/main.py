@@ -10,7 +10,7 @@ from asyncpg import Pool
 from db import pool
 from db.users.queries import ADD_USER
 from dotenv import load_dotenv
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Request
 from fastapi.exceptions import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from models.authenticate.output import AuthOut
@@ -57,8 +57,10 @@ async def new(user: NewIn) -> NewOut:
 
 
 @app.post("/authenticate")
-async def authenticate(form_data: Annotated[OAuth2PasswordRequestForm, Depends()], public_key: str) -> AuthOut:
-    return await authenticate_user(form_data, public_key, pool, redis)
+async def authenticate(
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()], public_key: str, request: Request
+) -> AuthOut:
+    return await authenticate_user(form_data, public_key, pool, redis, request)
 
 
 if __name__ == "__main__":
