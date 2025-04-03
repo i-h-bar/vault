@@ -30,7 +30,7 @@ async def get_current_user(pool: Pool, redis: Redis, request: Request, token: st
 
     expiry = datetime.fromisoformat(await redis.get(f"{user_id}-expiry"))
     if expiry > datetime.now(tz=pytz.utc):
-        raise HTTPException(status_code=401, detail="Invalid username or password")
+        raise HTTPException(status_code=401, detail="Token has expired")
 
     ip = await redis.get(f"{user_id}-ip")
     if ip != client.host:
