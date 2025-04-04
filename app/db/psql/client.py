@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-ARG_TYPE = str | bytes
+type ARG_TYPE = str | bytes
 
 
 class Psql:
