@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-type ARG_TYPE = str | bytes
+type ARG_TYPE = str | bytes | int
 
 
 class Psql:
@@ -27,7 +27,7 @@ class Psql:
         return self
 
     async def __aexit__(self: Self, *_) -> None:  # noqa: ANN002
-        await self.pool.close()
+        await self.close()
 
     async def close(self) -> None:
         await self.pool.close()
