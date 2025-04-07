@@ -38,7 +38,7 @@ impl Public {
     pub fn from_b64(py: &Bound<'_, PyType>, base64_str: String) -> PyResult<Self> {
         Self::from_bytes(
             py,
-            BASE64_STANDARD
+            BASE64_URL_SAFE
                 .decode(base64_str)
                 .map_err(|_| PyValueError::new_err("Could not parse b64"))?,
         )
@@ -49,11 +49,11 @@ impl Public {
     }
 
     pub fn to_b64(&self) -> String {
-        BASE64_STANDARD.encode(self.as_bytes())
+        BASE64_URL_SAFE.encode(self.as_bytes())
     }
 
     pub fn encrypt(&self, message: &str) -> String {
-        BASE64_STANDARD.encode(self._encrypt(message))
+        BASE64_URL_SAFE.encode(self._encrypt(message))
     }
 }
 

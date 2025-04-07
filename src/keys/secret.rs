@@ -1,4 +1,4 @@
-use base64::prelude::BASE64_STANDARD;
+use base64::prelude::BASE64_URL_SAFE;
 use pyo3::exceptions::{PyIndexError, PyValueError};
 use rand::Rng;
 use rayon::prelude::*;
@@ -38,7 +38,7 @@ impl Secret {
     pub fn from_b64(py: &Bound<'_, PyType>, base64_str: String) -> PyResult<Self> {
         Self::from_bytes(
             py,
-            BASE64_STANDARD
+            BASE64_URL_SAFE
                 .decode(base64_str)
                 .map_err(|_| PyValueError::new_err("Could not parse b64"))?,
         )
@@ -49,7 +49,7 @@ impl Secret {
     }
 
     pub fn to_b64(&self) -> String {
-        BASE64_STANDARD.encode(self.as_bytes())
+        BASE64_URL_SAFE.encode(self.as_bytes())
     }
 
     pub fn generate_public_key(&self) -> Public {
@@ -82,7 +82,7 @@ impl Secret {
 
     pub fn decrypt(&self, message: &str) -> PyResult<String> {
         self._decrypt(
-            &BASE64_STANDARD
+            &BASE64_URL_SAFE
                 .decode(message)
                 .map_err(|_| PyValueError::new_err("Could not parse b64"))?,
         )
