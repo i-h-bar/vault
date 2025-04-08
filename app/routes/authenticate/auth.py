@@ -19,6 +19,8 @@ async def authenticate_user(form_data: OAuth2PasswordRequestForm, request: Reque
     if not form_data.client_secret:
         raise HTTPException(status_code=401, detail="Invalid client secret")
 
+    # TODO Add check that the client secret is a valid public key
+
     if not (user := await Psql().fetch_row(GET_USER, form_data.username)):
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
