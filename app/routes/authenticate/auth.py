@@ -16,12 +16,10 @@ from routes.authenticate.constants import JWT_SECRET, SESSION_DURATION
 
 
 async def authenticate_user(form_data: OAuth2PasswordRequestForm, request: Request) -> Token:
-    user = await Psql().fetch_row(GET_USER, form_data.username)
-
     if not form_data.client_secret:
         raise HTTPException(status_code=401, detail="Invalid client secret")
 
-    if not user:
+    if not (user := await Psql().fetch_row(GET_USER, form_data.username)):
         raise HTTPException(status_code=401, detail="Invalid username or password")
 
     if not bcrypt.checkpw(form_data.password.encode(), user["hashed_password"]):

@@ -1,12 +1,13 @@
 import uuid
 from datetime import datetime, timedelta
-from unittest.mock import AsyncMock, MagicMock, call, patch
+from unittest.mock import AsyncMock, MagicMock, PropertyMock, call, patch
 
 import bcrypt
 import jwt
+import pytest
 import pytz
 from db.psql.users.queries import GET_USER
-from fastapi import Request
+from fastapi import HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from freezegun import freeze_time
 from lwe import Public, Secret
@@ -36,6 +37,23 @@ def form_data() -> OAuth2PasswordRequestForm:
         username="test",
         password=PASSWORD,
         client_secret=PUBLIC.to_b64(),
+    )
+
+
+@fixture
+def form_data_wrong_password() -> OAuth2PasswordRequestForm:
+    return OAuth2PasswordRequestForm(
+        username="test",
+        password="Wrong Password",  # noqa: S106
+        client_secret=PUBLIC.to_b64(),
+    )
+
+
+@fixture
+def form_data_no_client_secret() -> OAuth2PasswordRequestForm:
+    return OAuth2PasswordRequestForm(
+        username="test",
+        password=PASSWORD,
     )
 
 
@@ -94,3 +112,101 @@ async def test_auth_positive_flow(
     assert token.token_type == "Bearer"  # noqa: S105
 
     Public.from_b64(token.public_key)
+
+
+@patch("db.redis.client.Redis", new_callable=MagicMock)
+@patch("db.redis.client.Redis.set", new_callable=AsyncMock)
+@patch("db.psql.client.Psql", new_callable=MagicMock)
+@patch("db.psql.client.Psql.fetch_row", new_callable=AsyncMock, return_value=USER_FETCH)
+@freeze_time(TEST_TIME.isoformat())
+@mark.asyncio
+async def test_auth_no_client_secret(
+    row_mock: AsyncMock,
+    _: MagicMock,
+    set_mock: AsyncMock,
+    __: MagicMock,
+    form_data_no_client_secret: OAuth2PasswordRequestForm,
+    request_obj: Request,
+) -> None:
+    with pytest.raises(HTTPException) as error_info:
+        await authenticate_user(form_data_no_client_secret, request_obj)
+
+    assert error_info.value.status_code == 401
+    assert error_info.value.detail == "Invalid client secret"
+
+    row_mock.assert_not_called()
+    set_mock.assert_not_called()
+
+
+@patch("db.redis.client.Redis", new_callable=MagicMock)
+@patch("db.redis.client.Redis.set", new_callable=AsyncMock)
+@patch("db.psql.client.Psql", new_callable=MagicMock)
+@patch("db.psql.client.Psql.fetch_row", new_callable=AsyncMock, return_value=None)
+@freeze_time(TEST_TIME.isoformat())
+@mark.asyncio
+async def test_auth_no_user(
+    row_mock: AsyncMock,
+    _: MagicMock,
+    set_mock: AsyncMock,
+    __: MagicMock,
+    form_data: OAuth2PasswordRequestForm,
+    request_obj: Request,
+) -> None:
+    with pytest.raises(HTTPException) as error_info:
+        await authenticate_user(form_data, request_obj)
+
+    assert error_info.value.status_code == 401
+    assert error_info.value.detail == "Invalid username or password"
+
+    row_mock.assert_called_once_with(GET_USER, form_data.username)
+    set_mock.assert_not_called()
+
+
+@patch("db.redis.client.Redis", new_callable=MagicMock)
+@patch("db.redis.client.Redis.set", new_callable=AsyncMock)
+@patch("db.psql.client.Psql", new_callable=MagicMock)
+@patch("db.psql.client.Psql.fetch_row", new_callable=AsyncMock, return_value=USER_FETCH)
+@freeze_time(TEST_TIME.isoformat())
+@mark.asyncio
+async def test_auth_wrong_password(
+    row_mock: AsyncMock,
+    _: MagicMock,
+    set_mock: AsyncMock,
+    __: MagicMock,
+    form_data_wrong_password: OAuth2PasswordRequestForm,
+    request_obj: Request,
+) -> None:
+    with pytest.raises(HTTPException) as error_info:
+        await authenticate_user(form_data_wrong_password, request_obj)
+
+    assert error_info.value.status_code == 401
+    assert error_info.value.detail == "Invalid username or password"
+
+    row_mock.assert_called_once_with(GET_USER, form_data_wrong_password.username)
+    set_mock.assert_not_called()
+
+
+@patch("starlette.requests.Request.client", new_callable=lambda: PropertyMock(return_value=None))
+@patch("db.redis.client.Redis", new_callable=MagicMock)
+@patch("db.redis.client.Redis.set", new_callable=AsyncMock)
+@patch("db.psql.client.Psql", new_callable=MagicMock)
+@patch("db.psql.client.Psql.fetch_row", new_callable=AsyncMock, return_value=USER_FETCH)
+@freeze_time(TEST_TIME.isoformat())
+@mark.asyncio
+async def test_auth_no_client(
+    row_mock: AsyncMock,
+    _: MagicMock,
+    set_mock: AsyncMock,
+    __: MagicMock,
+    ___: MagicMock,
+    form_data: OAuth2PasswordRequestForm,
+    request_obj: Request,
+) -> None:
+    with pytest.raises(HTTPException) as error_info:
+        await authenticate_user(form_data, request_obj)
+
+    assert error_info.value.status_code == 401
+    assert error_info.value.detail == "Invalid client"
+
+    row_mock.assert_called_once_with(GET_USER, form_data.username)
+    set_mock.assert_not_called()
