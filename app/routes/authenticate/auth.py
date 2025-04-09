@@ -19,6 +19,9 @@ async def authenticate_user(form_data: OAuth2PasswordRequestForm, request: Reque
     if not form_data.client_secret:
         raise HTTPException(status_code=401, detail="Invalid client secret")
 
+    if not (client := request.client):
+        raise HTTPException(status_code=401, detail="Invalid client")
+
     try:
         Public.from_b64(form_data.client_secret)
     except ValueError:
@@ -29,9 +32,6 @@ async def authenticate_user(form_data: OAuth2PasswordRequestForm, request: Reque
 
     if not bcrypt.checkpw(form_data.password.encode(), user["hashed_password"]):
         raise HTTPException(status_code=401, detail="Invalid username or password")
-
-    if not (client := request.client):
-        raise HTTPException(status_code=401, detail="Invalid client")
 
     user_id = str(user["id"])
     app_secret = Secret()

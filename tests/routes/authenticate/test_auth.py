@@ -217,7 +217,7 @@ async def test_auth_no_client(
     assert error_info.value.status_code == 401
     assert error_info.value.detail == "Invalid client"
 
-    row_mock.assert_called_once_with(GET_USER, form_data.username)
+    row_mock.assert_not_called()
     set_mock.assert_not_called()
 
 
