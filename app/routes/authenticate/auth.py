@@ -9,7 +9,7 @@ from db.psql.users.queries import GET_USER
 from db.redis.client import Redis
 from fastapi import HTTPException, Request
 from fastapi.security import OAuth2PasswordRequestForm
-from lwe import Secret
+from lwe import Public, Secret
 from models.authenticate.output import Token
 
 from routes.authenticate.constants import JWT_SECRET, SESSION_DURATION
@@ -19,7 +19,10 @@ async def authenticate_user(form_data: OAuth2PasswordRequestForm, request: Reque
     if not form_data.client_secret:
         raise HTTPException(status_code=401, detail="Invalid client secret")
 
-    # TODO Add check that the client secret is a valid public key
+    try:
+        Public.from_b64(form_data.client_secret)
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Invalid client secret")
 
     if not (user := await Psql().fetch_row(GET_USER, form_data.username)):
         raise HTTPException(status_code=401, detail="Invalid username or password")

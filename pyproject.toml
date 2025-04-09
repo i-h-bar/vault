@@ -51,6 +51,7 @@ skip_empty = true
 [tool.coverage.report]
 include = ["app/*"]
 skip_empty = true
+show_missing = true
 
 
 [tool.ruff]

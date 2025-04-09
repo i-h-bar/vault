@@ -41,6 +41,15 @@ def form_data() -> OAuth2PasswordRequestForm:
 
 
 @fixture
+def form_data_bad_pub_key() -> OAuth2PasswordRequestForm:
+    return OAuth2PasswordRequestForm(
+        username="test",
+        password=PASSWORD,
+        client_secret="asdasdasda",  # noqa: S106
+    )
+
+
+@fixture
 def form_data_wrong_password() -> OAuth2PasswordRequestForm:
     return OAuth2PasswordRequestForm(
         username="test",
@@ -209,4 +218,28 @@ async def test_auth_no_client(
     assert error_info.value.detail == "Invalid client"
 
     row_mock.assert_called_once_with(GET_USER, form_data.username)
+    set_mock.assert_not_called()
+
+
+@patch("db.redis.client.Redis", new_callable=MagicMock)
+@patch("db.redis.client.Redis.set", new_callable=AsyncMock)
+@patch("db.psql.client.Psql", new_callable=MagicMock)
+@patch("db.psql.client.Psql.fetch_row", new_callable=AsyncMock, return_value=USER_FETCH)
+@freeze_time(TEST_TIME.isoformat())
+@mark.asyncio
+async def test_auth_invalid_public_key(
+    row_mock: AsyncMock,
+    _: MagicMock,
+    set_mock: AsyncMock,
+    __: MagicMock,
+    form_data_bad_pub_key: OAuth2PasswordRequestForm,
+    request_obj: Request,
+) -> None:
+    with pytest.raises(HTTPException) as error_info:
+        await authenticate_user(form_data_bad_pub_key, request_obj)
+
+    assert error_info.value.status_code == 401
+    assert error_info.value.detail == "Invalid client secret"
+
+    row_mock.assert_not_called()
     set_mock.assert_not_called()
