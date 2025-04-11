@@ -1,16 +1,11 @@
 import os
-import uuid
 from contextlib import asynccontextmanager
 from typing import Annotated, AsyncGenerator
 
-import asyncpg
-import bcrypt
 import uvicorn
 from db.psql.client import Psql
-from db.psql.users.queries import ADD_USER
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Request
-from fastapi.exceptions import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from models.authenticate.output import Token
 from models.new.inbound import NewIn
@@ -18,6 +13,7 @@ from models.new.outbound import NewOut
 from models.user import User
 from routes.authenticate.auth import authenticate_user
 from routes.authenticate.current_user import get_current_user
+from routes.new.new_user import create_user
 from routes.password.post.inbound import SetPasswordIn
 from routes.password.post.outbound import SetPasswordOut
 
@@ -40,12 +36,7 @@ else:
 
 @app.post("/new")
 async def new(user: NewIn) -> NewOut:
-    try:
-        await Psql().execute(ADD_USER, str(uuid.uuid4()), user.username, bcrypt.hashpw(user.password.encode(), SALT))
-    except asyncpg.PostgresError:
-        raise HTTPException(status_code=500, detail="Internal Server Error")
-
-    return NewOut(username=user.username)
+    return await create_user(user)
 
 
 @app.post("/authenticate")
