@@ -6,12 +6,12 @@ from db.psql.client import Psql
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Request
 from fastapi.security import OAuth2PasswordRequestForm
+from lwe.model_decrypt import decrypt_set_password
 from models.authenticate.output import Token
 from models.new.inbound import NewIn
 from models.new.outbound import NewOut
 from models.user import User
 from routes.authenticate.auth import authenticate_user
-from routes.authenticate.current_user import get_current_user
 from routes.new.new_user import create_user
 from routes.password.post.inbound import SetPasswordIn
 from routes.password.post.outbound import SetPasswordOut
@@ -39,8 +39,10 @@ async def authenticate(form_data: Annotated[OAuth2PasswordRequestForm, Depends()
 
 
 @app.post("/password")
-async def set_password(_: SetPasswordIn, __: Annotated[User, Depends(get_current_user)]) -> SetPasswordOut:
-    return SetPasswordOut()
+async def set_password(payload: Annotated[tuple[SetPasswordIn, User], Depends(decrypt_set_password)]) -> SetPasswordOut:
+    set_password_in, user = payload
+
+    return SetPasswordOut(username=set_password_in.username)
 
 
 if __name__ == "__main__":
