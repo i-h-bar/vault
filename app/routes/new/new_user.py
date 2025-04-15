@@ -5,9 +5,10 @@ import bcrypt
 from db.psql.client import Psql
 from db.psql.users.queries import ADD_USER
 from fastapi import HTTPException
-from main import SALT
 from models.new.inbound import NewIn
 from models.new.outbound import NewOut
+
+from routes.new.constants import SALT
 
 
 async def create_user(user: NewIn) -> NewOut:

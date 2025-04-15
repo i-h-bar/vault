@@ -1,4 +1,3 @@
-import os
 from contextlib import asynccontextmanager
 from typing import Annotated, AsyncGenerator
 
@@ -27,11 +26,6 @@ async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
 
 
 app = FastAPI(lifespan=lifespan)
-
-if salt := os.getenv("SALT"):
-    SALT = salt.encode()
-else:
-    raise ValueError("SALT not set")
 
 
 @app.post("/new")
