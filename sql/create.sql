@@ -12,8 +12,10 @@ create table passwords
     id       uuid not null
         constraint password_pk
             primary key,
-    password text not null,
     user_id  uuid not null
         constraint passwords_users_id_fk
-            references users
+            references users,
+    password text not null,
+    username text,
+    name     text not null
 );

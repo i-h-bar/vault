@@ -1,8 +1,11 @@
+import uuid
 from contextlib import asynccontextmanager
+from hashlib import sha256
 from typing import Annotated, AsyncGenerator
 
 import uvicorn
 from db.psql.client import Psql
+from db.psql.passwords.queries import INSERT_PASSWORD
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Request
 from fastapi.security import OAuth2PasswordRequestForm
@@ -41,7 +44,14 @@ async def authenticate(form_data: Annotated[OAuth2PasswordRequestForm, Depends()
 @app.post("/password")
 async def set_password(payload: Annotated[tuple[SetPasswordIn, User], Depends(decrypt_set_password)]) -> SetPasswordOut:
     set_password_in, user = payload
-
+    await Psql().execute(
+        INSERT_PASSWORD,
+        uuid.uuid4(),
+        user.id,
+        set_password_in.username,
+        set_password_in.password,
+        sha256(set_password_in.name.encode()).hexdigest(),
+    )
     return SetPasswordOut(username=set_password_in.username)
 
 

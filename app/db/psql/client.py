@@ -1,5 +1,6 @@
 import os
 from typing import Self
+from uuid import UUID
 
 import asyncpg
 from asyncpg import Pool, Record
@@ -7,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-type ARG_TYPE = str | bytes | int
+type ARG_TYPE = str | bytes | int | UUID
 
 
 class Psql:
