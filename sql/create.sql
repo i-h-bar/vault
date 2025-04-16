@@ -17,5 +17,5 @@ create table passwords
             references users,
     password text not null,
     username text,
-    name     text not null
+    name     bytea not null
 );

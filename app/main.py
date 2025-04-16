@@ -1,8 +1,8 @@
 import uuid
 from contextlib import asynccontextmanager
-from hashlib import sha256
 from typing import Annotated, AsyncGenerator
 
+import bcrypt
 import uvicorn
 from db.psql.client import Psql
 from db.psql.passwords.queries import INSERT_PASSWORD
@@ -16,6 +16,7 @@ from models.new.outbound import NewOut
 from models.user import User
 from routes.authenticate.auth import authenticate_user
 from routes.new.new_user import create_user
+from routes.password.post.constants import USER_SALT
 from routes.password.post.inbound import SetPasswordIn
 from routes.password.post.outbound import SetPasswordOut
 
@@ -50,7 +51,7 @@ async def set_password(payload: Annotated[tuple[SetPasswordIn, User], Depends(de
         user.id,
         set_password_in.username,
         set_password_in.password,
-        sha256(set_password_in.name.encode()).hexdigest(),
+        bcrypt.hashpw(set_password_in.name.encode(), salt=USER_SALT),
     )
     return SetPasswordOut(name=set_password_in.name)
 
