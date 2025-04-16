@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-type ARG_TYPE = str | bytes | int | UUID
+type ARG_TYPE = str | bytes | int | UUID | None
 
 
 class Psql:

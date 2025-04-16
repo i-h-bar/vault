@@ -52,7 +52,7 @@ async def set_password(payload: Annotated[tuple[SetPasswordIn, User], Depends(de
         set_password_in.password,
         sha256(set_password_in.name.encode()).hexdigest(),
     )
-    return SetPasswordOut(username=set_password_in.username)
+    return SetPasswordOut(name=set_password_in.name)
 
 
 if __name__ == "__main__":
