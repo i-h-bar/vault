@@ -9,13 +9,15 @@ create table users
 
 create table passwords
 (
-    id       uuid not null
+    id       uuid  not null
         constraint password_pk
             primary key,
-    user_id  uuid not null
+    user_id  uuid  not null
         constraint passwords_users_id_fk
             references users,
-    password text not null,
+    name     bytea not null,
     username text,
-    name     bytea not null
+    password text  not null,
+    constraint uq_name_user_id
+        unique (user_id, name)
 );
