@@ -65,7 +65,7 @@ async def get_password(
 
     row = await Psql().fetch_row(
         GET_PASSWORD,
-        get_password_in.name,
+        bcrypt.hashpw(get_password_in.name.encode(), salt=USER_SALT),
         user.id,
     )
 
