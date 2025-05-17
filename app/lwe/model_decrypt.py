@@ -23,7 +23,7 @@ async def decrypt_set_password(payload: Annotated[tuple[User, str], Depends(decr
         raise HTTPException(status_code=400, detail="Bad Input")
 
     try:
-        set_password_in = SetPasswordIn(**message)
+        set_password_in = SetPasswordIn.model_validate(message)
     except pydantic.ValidationError:
         raise HTTPException(status_code=400, detail="Bad Input")
 
@@ -39,7 +39,7 @@ async def decrypt_get_password(payload: Annotated[tuple[User, str], Depends(decr
         raise HTTPException(status_code=400, detail="Bad Input")
 
     try:
-        get_password_in = GetPasswordIn(**message)
+        get_password_in = GetPasswordIn.model_validate(message)
     except pydantic.ValidationError:
         raise HTTPException(status_code=400, detail="Bad Input")
 

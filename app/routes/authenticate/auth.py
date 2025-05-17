@@ -16,14 +16,14 @@ from routes.authenticate.constants import JWT_SECRET, SESSION_DURATION
 
 
 async def authenticate_user(form_data: OAuth2PasswordRequestForm, request: Request) -> Token:
-    if not form_data.client_secret:
+    if not (client_secret := form_data.client_secret):
         raise HTTPException(status_code=401, detail="Invalid client secret")
 
     if not (client := request.client):
         raise HTTPException(status_code=401, detail="Invalid client")
 
     try:
-        Public.from_b64(form_data.client_secret)
+        Public.from_b64(client_secret)
     except ValueError:
         raise HTTPException(status_code=401, detail="Invalid client secret")
 
@@ -42,7 +42,7 @@ async def authenticate_user(form_data: OAuth2PasswordRequestForm, request: Reque
     redis = Redis()
     await asyncio.gather(
         redis.set(f"{user_id}-secret", app_secret.to_b64(), ex=SESSION_DURATION),
-        redis.set(f"{user_id}-public", form_data.client_secret, ex=SESSION_DURATION),
+        redis.set(f"{user_id}-public", client_secret, ex=SESSION_DURATION),
         redis.set(f"{user_id}-expiry", expires, ex=SESSION_DURATION),
         redis.set(f"{user_id}-ip", client.host, ex=SESSION_DURATION),
     )

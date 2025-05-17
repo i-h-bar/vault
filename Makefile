@@ -20,3 +20,7 @@ binary_docker:
 test: binary
 	@uv run coverage run
 	@uv run coverage report
+
+lint:
+	@uv run ruff check
+	@uv run ty check app
