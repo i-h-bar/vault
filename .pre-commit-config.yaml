@@ -19,6 +19,7 @@ repos:
       stages: ["pre-push"]
       always_run: true
     - id: ruff-format
+      name: Ruff Python Formatting
       always_run: true
 
 - repo: local
@@ -31,7 +32,7 @@ repos:
       pass_filenames: false
       stages: [ "pre-push" ]
     - id: cargo-fmt
-      name: Cargo Rust Format
+      name: Cargo Rust Formatting
       entry: cargo fmt
       always_run: true
       language: system
