@@ -24,7 +24,7 @@ dev = [
     "maturin>=1.8.3",
     "ruff>=0.11.6",
     "pre-commit (>=4.2,<5.0)",
-    "pyright>=1.1.399",
+    "ty>=0.0.1-alpha.4",
     "coverage (>=7.8.0,<8.0.0)",
     "pytest (>=8.3.5,<9.0.0)",
     "requests (>=2.32.3,<3.0.0)",
@@ -39,8 +39,8 @@ package = false
 pythonpath = ["app"]
 asyncio_default_fixture_loop_scope = "function"
 
-[tool.pyright]
-include = ["app"]
+[tool.ty.src]
+root = "./app"
 
 [tool.coverage.run]
 omit = ["*/site-packages/*", "tests/*"]

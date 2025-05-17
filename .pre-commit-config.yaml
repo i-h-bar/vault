@@ -35,9 +35,9 @@ repos:
       always_run: true
       language: system
       pass_filenames: false
-    - id: Pyright
-      name: Pyright
-      entry: pyright
+    - id: Ty
+      name: Ty
+      entry: uv run ty check app --error-on-warning
       always_run: true
       language: system
       pass_filenames: false
