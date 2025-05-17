@@ -13,6 +13,7 @@ repos:
   rev: v0.11.2
   hooks:
     - id: ruff
+      name: Ruff Python Linting
       args:
         - --fix
       stages: ["pre-push"]
@@ -23,20 +24,20 @@ repos:
 - repo: local
   hooks:
     - id: cargo-clippy
-      name: Cargo Clippy
+      name: Cargo Clippy Rust Linting
       entry: cargo clippy -- -D warning
       always_run: true
       language: system
       pass_filenames: false
       stages: [ "pre-push" ]
     - id: cargo-fmt
-      name: Cargo Format
+      name: Cargo Rust Format
       entry: cargo fmt
       always_run: true
       language: system
       pass_filenames: false
     - id: Ty
-      name: Ty
+      name: Ty Python Type Checking
       entry: uv run ty check app --error-on-warning
       always_run: true
       language: system
